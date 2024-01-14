@@ -1,16 +1,18 @@
 #include "Encoder/IEncoder.hpp"
 #include <stdlib.h>
+#include <FreeRTOS.h>
+#include <task.h>
+#include <etl/absolute.h>
+#include <etl/atomic.h>
 
 Encoder::Encoder() {
-    myCount = 0;
-    myLastCount = 0;
-    myCountUpdateTime = 0;
-    myLastCountUpdateTime = 0;
+    myStatus = {0, false, 0, 0, 0, false, 0, 0};
 }
 
-uint16_t Encoder::GetCountPeriod() {
-    uint16_t timeDifference = myCountUpdateTime - myLastCountUpdateTime;
-    int32_t countDifference = std::abs(static_cast<int32_t>(myCount) - static_cast<int32_t>(myLastCount));
+uint16_t Encoder::GetCountPeriod(Status status) {
+
+    uint16_t timeDifference = status.timestamp - status.lastTimestamp;
+    int32_t countDifference = etl::absolute(static_cast<int32_t>(status.count) - static_cast<int32_t>(status.lastCount));
 
     // Check if countDifference is not zero to avoid division by zero
     if (countDifference != 0) {
@@ -21,6 +23,6 @@ uint16_t Encoder::GetCountPeriod() {
     }
 }
 
-uint32_t Encoder::GetPosition() {
-    return myCount;
+Encoder::Status Encoder::GetMotionParams() {
+    return myStatus.load();
 }

@@ -1,6 +1,6 @@
 #pragma once
 #include <cstdint>
-
+#include <etl/atomic.h>
 /**
  * @brief The Encoder class is an abstract base class for encoders.
  * 
@@ -8,23 +8,29 @@
  */
 class Encoder {
 public:
+    struct Status {
+        int32_t count;
+        bool direction;
+        uint32_t timestamp;
+        uint16_t speed;
+        uint32_t lastCount;
+        bool lastDirection;
+        uint32_t lastTimestamp;
+        uint16_t lastSpeed;
+    };
 
     Encoder();
 
     /**
-     * @brief Gets the current position of the encoder.
+     * @brief Gets the position, direction, speed, etc. of the encoder.
      * 
-     * @return The current position as a uint32_t value.
-     */
-    virtual uint32_t GetPosition();
-
-    /**
-     * @brief Gets the direction of the encoder.
+     * @note it's recommended to do as much as possible with a single read of this
+     * since it's backed by std::atomic and is more expensive than reading individual
+     * ints, but guarantees the timestamps, speed, and direction are consistent.
      * 
-     * @return The direction of the encoder as a bool value.
-     * True is up, false is down.
+     * @return The position, direction, speed, etc. of the encoder as a Status struct.
      */
-    virtual bool GetDirection() = 0;
+    Status GetMotionParams();
 
     /**
      * @brief Returns the average time between counts in milliseconds.
@@ -32,19 +38,16 @@ public:
      * @return The average time between counts as a uint16_t value.
      * If the period is zero, the encoder has not moved since the last update.
      */
-    virtual uint16_t GetCountPeriod() final;
-
+    virtual uint16_t GetCountPeriod(Status status) final;
+    
     /**
      * @brief Updates the encoder.
      * 
-     * This method should be called periodically to update the encoder's count.
+     * This method should be called periodically by the update task to update the encoder's count.
      */
     virtual void Update() = 0;
 
 protected:
-    uint32_t myCount;                   ///< The current count of the encoder.
-    uint32_t myCountUpdateTime;         ///< The timestamp of the last count update.
-    uint32_t myLastCount;               ///< The previous count of the encoder.
-    uint32_t myLastCountUpdateTime;     ///< The timestamp of the previous count update.
+    etl::atomic<Status> myStatus;   ///< The current and previous position, speed and direction of the encoder.
+    
 };
-

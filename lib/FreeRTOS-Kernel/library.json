@@ -1,0 +1,36 @@
+{
+    "name": "FreeRTOS-Kernel",
+    "version": "10.4.4-1",
+    "description": "FreeRTOS kernel source for platformio",
+    "keywords": "FreeRTOS, rtos, kernel",
+    "repository":
+    {
+        "type": "git",
+        "url": "https://gitee.com/linlin-study/FreeRTOS-Kernel.git",
+        "branch": "pio"
+    },
+    "authors":
+    {
+        "name": "linlin",
+        "email": "3090886081@qq.com",
+        "maintainer": true
+    },
+    "build":
+    {
+        "srcDir": "",
+        "srcFilter":
+        [
+            "+<*.c>",
+            "+<portable/MemMang/heap3.c>",
+            "+<portable/GCC/ARM_CM3/*.c>"
+        ],
+        "flags":
+        [
+            "-I include",
+            "-I portable/GCC/ARM_CM3"
+        ],
+        "libLDFMode": "deep+",
+        "libArchive": "false",
+        "extraScript": "extra_script.py"
+    }
+}

@@ -4,7 +4,7 @@
 
 class LS7366R : public Encoder {
     public:
-        struct Status {
+        struct State {
            bool carry; //counter overflow
            bool borrow; //counter underflow
            bool compare;
@@ -17,15 +17,11 @@ class LS7366R : public Encoder {
 
         LS7366R();
         void Init();
-        uint32_t GetPosition() override;
         void Update() override;
     private:
         void PrivWrite(const uint8_t opCode, const uint8_t* data);
-        void PrivUpdateCount();
-        void PrivUpdateStatus();
-        
         void StartCS();
         void EndCS();
-        Status myStatus;
+        State myState;
 
 };

@@ -6,7 +6,7 @@
 #include <cstddef>
 
 LS7366R::LS7366R() : Encoder::Encoder(),
-    myStatus{false, false, false, false, false, false, false, false} {
+    myState{false, false, false, false, false, false, false, false} {
 }
 
 void LS7366R::Init() {
@@ -53,19 +53,6 @@ void LS7366R::Init() {
     PrivWrite(CLR_CNTR, nullptr);
 }
 
-uint32_t LS7366R::GetPosition() {
-    //TODO: this is naive, check for overflow and all that good stuff
-    return myCount;
-}
-
-// uint16_t LS7366R::GetCountPeriod() {
-//     //TODO calculate time between counts average over the number of counts.
-//     //probably needs a timer to store when the update got the count from the encoder,
-//     //and compare the number of counts in that interval vs the number of counts in the last interval
-//     //This should go through a unit testable function in the base, probably.
-//     return 0;
-// }
-
 void LS7366R::StartCS() {
     gpio_clear(GPIOA, GPIO4); // Set CS low
 }
@@ -91,11 +78,19 @@ void LS7366R::PrivWrite(uint8_t opCode, const uint8_t* data) {
     EndCS();
 }
 
-void LS7366R::PrivUpdateCount() {
+void LS7366R::Update() {
     StartCS(); // Initiate SPI transaction
+
+    /////////////// Buffer CNTR in OTR ///////////////
 
     spi_send(SPI1, LOAD_OTR); // Send the read CNTR command
     while (!(SPI_SR(SPI1) & SPI_SR_TXE)); // Wait for transmit buffer to empty
+
+    //it's more important that the current timestamp matches the current count for the position loop
+    //so set it as soon as the LOAD_OTR is done
+    uint16_t timestamp = 0;//TODO SYSTICK OR SOMETHING, and manage timer overflow();
+
+    ///////////// Read CNTR /////////////
 
     // Send the read CNTR command
     spi_send(SPI1, READ_OTR);
@@ -108,17 +103,7 @@ void LS7366R::PrivUpdateCount() {
         count = (count << 8) | spi_read(SPI1); // Shift and append received byte
     }
 
-    EndCS(); // End SPI transaction
-
-    myLastCount = myCount; // Store the previous value for the next mathmania
-    myLastCountUpdateTime = myCountUpdateTime;
-
-    myCount = count; // Store the read value
-    myCountUpdateTime = 0;//TODO SYSTICK OR SOMETHING, and manage timer overflow();
-}
-
-void LS7366R::PrivUpdateStatus() {
-    StartCS(); // Initiate SPI transaction
+    ///////////// Read STR /////////////
 
     // Send the read STR command
     spi_send(SPI1, READ_STR);
@@ -133,13 +118,28 @@ void LS7366R::PrivUpdateStatus() {
     EndCS(); // End SPI transaction
 
     // Extract the status bits
-    myStatus.carry = status & 0x01;
-    myStatus.borrow = status & 0x02;
-    myStatus.compare = status & 0x04;
-    myStatus.idx = status & 0x08;
-    myStatus.counterEnable = status & 0x10;
-    myStatus.powerLoss = status & 0x20;
-    myStatus.direction = status & 0x40;
-    myStatus.sign = status & 0x80;
+    myState.carry = status & 0x01;
+    myState.borrow = status & 0x02;
+    myState.compare = status & 0x04;
+    myState.idx = status & 0x08;
+    myState.counterEnable = status & 0x10;
+    myState.powerLoss = status & 0x20;
+    myState.direction = status & 0x40;
+    myState.sign = status & 0x80;
+
+
+    /////////////// Store results ///////////////
+
+    //atomically swap the stuff out so that the time matches the count in all other threads
+    Status s = myStatus.load();
+    s.lastCount = s.count; // Store the previous value
+    s.lastTimestamp = s.timestamp;
+    s.lastDirection = s.direction;
+    //todo handle speed
+    s.count = count; // Store the read value
+    s.timestamp = timestamp;
+    s.direction = myState.direction;
+    //todo handle speed
+    myStatus.exchange(s);
 }
     
