@@ -1,9 +1,11 @@
+#include <zephyr/kernel.h>
+// #include <zephyr/drivers/spi.h>
+// #include <zephyr/drivers/gpio.h>
+#include <zephyr/sys/printk.h>
+#include <stdint.h>
+#include <stddef.h>
+
 #include "Encoder/driver/LS7366R.hpp"
-#include <libopencm3/stm32/rcc.h>
-#include <libopencm3/stm32/gpio.h>
-#include <libopencm3/stm32/spi.h>
-#include <cstdint>
-#include <cstddef>
 
 LS7366R::LS7366R() : Encoder::Encoder(),
     myState{false, false, false, false, false, false, false, false} {
@@ -11,33 +13,28 @@ LS7366R::LS7366R() : Encoder::Encoder(),
 
 void LS7366R::Init() {
 
-    // Enable clocks for GPIOA and SPI1
-    rcc_periph_clock_enable(RCC_GPIOA);
-    rcc_periph_clock_enable(RCC_GPIOB);
-    rcc_periph_clock_enable(RCC_SPI1);
+    spiDev = device_get_binding("SPI_1");
+    if (!spiDev) {
+        //throw a fatal error   printk("SPI device not found\n");
+        return;
+    }
 
-    // SPI GPIOs
-    gpio_set_mode(GPIOA, GPIO_MODE_OUTPUT_50_MHZ,
-                  GPIO_CNF_OUTPUT_ALTFN_PUSHPULL, 
-                  GPIO5 | GPIO7); // SCK, MOSI
-    gpio_set_mode(GPIOA, GPIO_MODE_INPUT,
-                  GPIO_CNF_INPUT_FLOAT, 
-                  GPIO6); // MISO
+    spiCS.gpio_dev = device_get_binding("GPIO_0");
 
-    // CS Pin
-    gpio_set_mode(GPIOA, GPIO_MODE_OUTPUT_50_MHZ,
-                  GPIO_CNF_OUTPUT_PUSHPULL, 
-                  GPIO4);
-    gpio_set(GPIOA, GPIO4); // Set CS high
+    if (!spiCS.gpio_dev) {
+        //todo throw a fatal error  printk("GPIO device not found\n");
+        return;
+    }
 
-    spi_init_master(SPI1, SPI_CR1_BAUDRATE_FPCLK_DIV_64,
-                    SPI_CR1_CPOL_CLK_TO_0_WHEN_IDLE, 
-                    SPI_CR1_CPHA_CLK_TRANSITION_1, 
-                    SPI_CR1_DFF_8BIT, SPI_CR1_MSBFIRST);
+    spiCS.gpio_pin = 4;
+    spiCS.delay = 0;
+    spiCS.gpio_dt_flags = GPIO_ACTIVE_LOW;
 
-    spi_enable(SPI1);
-
-
+    spiCFG.frequency = 1000000;
+    spiCFG.operation = SPI_OP_MODE_MASTER | SPI_WORD_SET(8) | SPI_TRANSFER_MSB | SPI_MODE_CPOL | SPI_MODE_CPHA;
+    spiCFG.slave = 0;
+    spiCFG.cs = &spiCS;
+    
     //Configure and reset the LS7366R
     // cppcheck-suppress knownConditionTrueFalse 
     // cppcheck-suppress badBitmaskCheck
@@ -62,62 +59,72 @@ void LS7366R::EndCS() {
 }
 
 void LS7366R::PrivWrite(uint8_t opCode, const uint8_t* data) {
-    // Initiate SPI communication
-    StartCS();
 
-    // Send opcode
-    spi_send(SPI1, opCode);
-    while (!(SPI_SR(SPI1) & SPI_SR_TXE)); // Wait for transmit buffer to empty
+    struct spi_buf tx_buf[2];
+    struct spi_buf_set tx_bufs;
 
-    if(data != nullptr){
-        // Send data
-        spi_send(SPI1, *data);
-        while (!(SPI_SR(SPI1) & SPI_SR_TXE)); // Wait for transmit buffer to empty
+    tx_buf[0].buf = &opCode;
+    tx_buf[0].len = 1;
+
+    tx_bufs.buffers = tx_buf;
+    tx_bufs.count = (data != nullptr) ? 2 : 1;
+
+    if (data != nullptr) {
+        tx_buf[1].buf = (void *)data;
+        tx_buf[1].len = 1;
     }
 
-    EndCS();
+    spi_write(spiDev, &spiCFG, &tx_bufs);
 }
 
 void LS7366R::Update() {
-    StartCS(); // Initiate SPI transaction
+    uint8_t cmd;
+    uint8_t buffer[4];
+    struct spi_buf tx_buf;
+    struct spi_buf rx_buf;
+    struct spi_buf_set tx_bufs;
+    struct spi_buf_set rx_bufs;
 
-    /////////////// Buffer CNTR in OTR ///////////////
+    // Load CNTR to OTR
+    cmd = LOAD_OTR;
+    tx_buf.buf = &cmd;
+    tx_buf.len = 1;
+    tx_bufs.buffers = &tx_buf;
+    tx_bufs.count = 1;
 
-    spi_send(SPI1, LOAD_OTR); // Send the read CNTR command
-    while (!(SPI_SR(SPI1) & SPI_SR_TXE)); // Wait for transmit buffer to empty
+    spi_write(spi_dev, &spi_cfg, &tx_bufs);
 
     //it's more important that the current timestamp matches the current count for the position loop
     //so set it as soon as the LOAD_OTR is done
     uint16_t timestamp = 0;//TODO SYSTICK OR SOMETHING, and manage timer overflow();
 
-    ///////////// Read CNTR /////////////
+    ///////////// Read CNTR (now in OTR) /////////////
 
-    // Send the read CNTR command
-    spi_send(SPI1, READ_OTR);
+    cmd = READ_OTR;
+    tx_buf.buf = &cmd;
+    tx_buf.len = 1;
+    rx_buf.buf = buffer;
+    rx_buf.len = 4;
+    rx_bufs.buffers = &rx_buf;
+    rx_bufs.count = 1;
 
-    // Read 4 bytes from CNTR register
-    uint32_t count = 0;
-    for (int i = 0; i < 4; i++) {
-        spi_send(SPI1, 0x00); // Send dummy byte
-        while (!(SPI_SR(SPI1) & SPI_SR_RXNE)); // Wait for receive buffer to fill
-        count = (count << 8) | spi_read(SPI1); // Shift and append received byte
-    }
+    spi_transceive(spi_dev, &spi_cfg, &tx_bufs, &rx_bufs);
+
+    // Convert buffer to uint32_t count
+    uint32_t count = (buffer[0] << 24) | (buffer[1] << 16) | (buffer[2] << 8) | buffer[3];
 
     ///////////// Read STR /////////////
+    cmd = READ_STR;
+    tx_buf.buf = &cmd;
+    tx_buf.len = 1;
+    rx_buf.buf = &buffer[0];
+    rx_buf.len = 1;
 
-    // Send the read STR command
-    spi_send(SPI1, READ_STR);
-    while (!(SPI_SR(SPI1) & SPI_SR_TXE)); // Wait for transmit buffer to empty
+    spi_transceive(spi_dev, &spi_cfg, &tx_bufs, &rx_bufs);
 
-    // Read 1 byte from STR register
-    uint8_t status = 0;
-    spi_send(SPI1, 0x00); // Send dummy byte
-    while (!(SPI_SR(SPI1) & SPI_SR_RXNE)); // Wait for receive buffer to fill
-    status = spi_read(SPI1); // Read received byte
+    uint8_t status = buffer[0];
 
-    EndCS(); // End SPI transaction
-
-    // Extract the status bits
+    // Extract status bits
     myState.carry = status & 0x01;
     myState.borrow = status & 0x02;
     myState.compare = status & 0x04;

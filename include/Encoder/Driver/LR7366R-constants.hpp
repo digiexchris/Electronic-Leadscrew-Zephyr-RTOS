@@ -1,5 +1,5 @@
 #pragma once
-#include <cstdint>
+#include <stdint.h>
 
 //LS7366R to 90s8515 and ATmega32 SPI interface example
 /***MDR0 configuration data - the configuration byte is formed with***

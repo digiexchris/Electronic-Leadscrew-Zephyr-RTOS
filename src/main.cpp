@@ -1,9 +1,7 @@
-#include <FreeRTOS.h>
-#include <task.h>
-
 #include "main.hpp"
+#include <zephyr/kernel.h>
 
-#define ENCODER_UPDATE_TASK_PRIORITY 10
+#define ENCODER_UPDATE_TASK_PRIORITY -2 //high priority
 #define ENCODER_UPDATE_TASK_STACK_SIZE 128
 
 #include "Encoder/IEncoder.hpp"
@@ -14,40 +12,31 @@
     #error "No encoder driver selected in platformio.ini!"
 #endif
 
-TaskHandle_t encoderUpdateTaskHandle;
+K_THREAD_STACK_DEFINE(encoderUpdateTaskStack, ENCODER_UPDATE_TASK_STACK_SIZE);
+struct k_thread encoderUpdateTaskData;
+k_tid_t encoderUpdateThreadId;
 
 int main() {
     #if USE_LS7366R_ENCODER
         myEncoder = new LS7366R();
+        myEncoder->Init();
     #endif
 
-    xTaskCreate(
-        UpdateEncoderTask, 
-        "Encoder Update Task", 
-        ENCODER_UPDATE_TASK_STACK_SIZE, 
-        myEncoder, 
-        ENCODER_UPDATE_TASK_PRIORITY, 
-        &encoderUpdateTaskHandle);
-
-    vTaskStartScheduler();
-
-    for (;;);
+    encoderUpdateThreadId = k_thread_create(
+        &encoderUpdateTaskData, 
+        encoderUpdateTaskStack,
+        K_THREAD_STACK_SIZEOF(encoderUpdateTaskStack),
+        UpdateEncoderTask,
+        myEncoder, NULL, NULL,
+        ENCODER_UPDATE_TASK_PRIORITY,
+        0, K_NO_WAIT);
 }
 
-void UpdateEncoderTask(void* param) {
-    Encoder* encoder = static_cast<Encoder*>(param);
+
+void UpdateEncoderTask(void *arg1, void *arg2, void *arg3) {
+    Encoder* encoder = static_cast<Encoder*>(arg1);
     for (;;) {
         encoder->Update();
         vTaskDelay(1*portTICK_PERIOD_MS);
     }
-}
-
-/*
- * Handler in case our application overflows the stack
- */
-void vApplicationStackOverflowHook(
-    TaskHandle_t xTask __attribute__((unused)),
-    char *pcTaskName __attribute__((unused))) 
-{
-    for (;;);
 }

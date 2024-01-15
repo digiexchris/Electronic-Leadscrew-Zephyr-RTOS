@@ -1,6 +1,9 @@
 #pragma once
 #include "../IEncoder.hpp"
 #include "LR7366R-constants.hpp"
+#include <zephyr/device.h>
+#include <zephyr/drivers/gpio.h>
+#include <zepher/drivers/spi.h>
 
 class LS7366R : public Encoder {
     public:
@@ -23,5 +26,9 @@ class LS7366R : public Encoder {
         void StartCS();
         void EndCS();
         State myState;
+
+        device *spiDev; //the SPI used for the encoder
+        spi_cs_control spiCS;
+        spi_config spiCFG;
 
 };

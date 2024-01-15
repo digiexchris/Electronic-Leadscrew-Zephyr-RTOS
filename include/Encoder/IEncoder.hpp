@@ -1,5 +1,5 @@
 #pragma once
-#include <cstdint>
+#include <stdint.h>
 #include <etl/atomic.h>
 /**
  * @brief The Encoder class is an abstract base class for encoders.
