@@ -1,53 +1,56 @@
-#include <FreeRTOS.h>
-#include <task.h>
-
 #include "main.hpp"
+#include <zephyr/kernel.h>
 
-#define ENCODER_UPDATE_TASK_PRIORITY 10
-#define ENCODER_UPDATE_TASK_STACK_SIZE 128
 
 #include "Encoder/IEncoder.hpp"
-#if USE_LS7366R_ENCODER
+
+#define ENCODER_UPDATE_TASK_PRIORITY -2 //high priority
+#define ENCODER_UPDATE_TASK_STACK_SIZE 128
+
+#ifdef CONFIG_SPINDLE_ENCODER_TYPE_TEST
+    // Setup for TEST encoder
+#elif CONFIG_SPINDLE_ENCODER_TYPE_LS7366
     #include "Encoder/Driver/LS7366R.hpp"
     LS7366R* myEncoder;
+    // Setup for LS7366 encoder
+#elif CONFIG_SPINDLE_ENCODER_TYPE_SDEC
+
 #else
-    #error "No encoder driver selected in platformio.ini!"
+    #error "No encoder type selected, see Kconfig"
+    // Setup for SDEC encoder
 #endif
 
-TaskHandle_t encoderUpdateTaskHandle;
+// #if CONFIG_BOARD == stm32f411ce_blackpill
+//     #if CONFIG_BOARD != rpi_pico
+//         #error "Board mismatch, see README.md for supported boards"
+//     #endif
+// #endif
+
+K_THREAD_STACK_DEFINE(encoderUpdateTaskStack, ENCODER_UPDATE_TASK_STACK_SIZE);
+struct k_thread encoderUpdateTaskData;
+k_tid_t encoderUpdateThreadId;
 
 int main() {
     #if USE_LS7366R_ENCODER
         myEncoder = new LS7366R();
+        myEncoder->Init();
     #endif
 
-    xTaskCreate(
-        UpdateEncoderTask, 
-        "Encoder Update Task", 
-        ENCODER_UPDATE_TASK_STACK_SIZE, 
-        myEncoder, 
-        ENCODER_UPDATE_TASK_PRIORITY, 
-        &encoderUpdateTaskHandle);
-
-    vTaskStartScheduler();
-
-    for (;;);
+    encoderUpdateThreadId = k_thread_create(
+        &encoderUpdateTaskData, 
+        encoderUpdateTaskStack,
+        K_THREAD_STACK_SIZEOF(encoderUpdateTaskStack),
+        UpdateEncoderTask,
+        myEncoder, NULL, NULL,
+        ENCODER_UPDATE_TASK_PRIORITY,
+        0, K_NO_WAIT);
 }
 
-void UpdateEncoderTask(void* param) {
-    Encoder* encoder = static_cast<Encoder*>(param);
+
+void UpdateEncoderTask(void *arg1, void *arg2, void *arg3) {
+    Encoder* encoder = static_cast<Encoder*>(arg1);
     for (;;) {
         encoder->Update();
-        vTaskDelay(1*portTICK_PERIOD_MS);
+        //vTaskDelay(1*portTICK_PERIOD_MS);
     }
-}
-
-/*
- * Handler in case our application overflows the stack
- */
-void vApplicationStackOverflowHook(
-    TaskHandle_t xTask __attribute__((unused)),
-    char *pcTaskName __attribute__((unused))) 
-{
-    for (;;);
 }
