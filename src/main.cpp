@@ -1,15 +1,29 @@
 #include "main.hpp"
 #include <zephyr/kernel.h>
 
+
+#include "Encoder/IEncoder.hpp"
+
 #define ENCODER_UPDATE_TASK_PRIORITY -2 //high priority
 #define ENCODER_UPDATE_TASK_STACK_SIZE 128
 
-#include "Encoder/IEncoder.hpp"
-#if USE_LS7366R_ENCODER
+#ifdef CONFIG_SPINDLE_ENCODER_TYPE_TEST
+    // Setup for TEST encoder
+#elif CONFIG_SPINDLE_ENCODER_TYPE_LS7366
     #include "Encoder/Driver/LS7366R.hpp"
     LS7366R* myEncoder;
+    // Setup for LS7366 encoder
+#elif CONFIG_SPINDLE_ENCODER_TYPE_SDEC
+
 #else
-    #error "No encoder driver selected in platformio.ini!"
+    #error "No encoder type selected, see Kconfig"
+    // Setup for SDEC encoder
+#endif
+
+#if CONFIG_BOARD == stm32f411ce_blackpill
+    #if CONFIG_BOARD != rpi_pico
+        #error "Board mismatch, see README.md for supported boards"
+    #endif
 #endif
 
 K_THREAD_STACK_DEFINE(encoderUpdateTaskStack, ENCODER_UPDATE_TASK_STACK_SIZE);

@@ -1,5 +1,5 @@
 &spi1 {
-    compatible = "nordic,nrf-spim";
+    //compatible = "nordic,nrf-spim";
     ls7366r: ls7366r@0 {
         compatible = "ls7366r";
         reg = <0>;
