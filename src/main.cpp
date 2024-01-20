@@ -20,11 +20,11 @@
     // Setup for SDEC encoder
 #endif
 
-#if CONFIG_BOARD == stm32f411ce_blackpill
-    #if CONFIG_BOARD != rpi_pico
-        #error "Board mismatch, see README.md for supported boards"
-    #endif
-#endif
+// #if CONFIG_BOARD == stm32f411ce_blackpill
+//     #if CONFIG_BOARD != rpi_pico
+//         #error "Board mismatch, see README.md for supported boards"
+//     #endif
+// #endif
 
 K_THREAD_STACK_DEFINE(encoderUpdateTaskStack, ENCODER_UPDATE_TASK_STACK_SIZE);
 struct k_thread encoderUpdateTaskData;
@@ -51,6 +51,6 @@ void UpdateEncoderTask(void *arg1, void *arg2, void *arg3) {
     Encoder* encoder = static_cast<Encoder*>(arg1);
     for (;;) {
         encoder->Update();
-        vTaskDelay(1*portTICK_PERIOD_MS);
+        //vTaskDelay(1*portTICK_PERIOD_MS);
     }
 }

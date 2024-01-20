@@ -1,9 +1,11 @@
 #pragma once
 #include "../IEncoder.hpp"
 #include "LR7366R-constants.hpp"
+#include <zephyr/kernel.h>
+#include <zephyr/sys/printk.h>
 #include <zephyr/device.h>
+#include <zephyr/drivers/spi.h>
 #include <zephyr/drivers/gpio.h>
-#include <zepher/drivers/spi.h>
 
 class LS7366R : public Encoder {
     public:

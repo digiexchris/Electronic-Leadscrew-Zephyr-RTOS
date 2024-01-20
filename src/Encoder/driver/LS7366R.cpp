@@ -1,7 +1,7 @@
 #include <zephyr/kernel.h>
-// #include <zephyr/drivers/spi.h>
-// #include <zephyr/drivers/gpio.h>
 #include <zephyr/sys/printk.h>
+#include <zephyr/device.h>
+#include <zephyr/drivers/spi.h>
 #include <stdint.h>
 #include <stddef.h>
 

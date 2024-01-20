@@ -5,7 +5,7 @@ set(BOARD rpi_pico)
 set(NO_BUILD_TYPE_WARNING TRUE)
 find_package(zephyr)
 
-include($ENV{ZEPHYR_BASE}/cmake/app/boilerplate.cmake NO_POLICY_SCOPE)
+# include($ENV{ZEPHYR_BASE}/cmake/app/boilerplate.cmake NO_POLICY_SCOPE)
 project(LeadscrewWarrantyVoider)
 
 FILE(GLOB app_sources src/*.c*)
