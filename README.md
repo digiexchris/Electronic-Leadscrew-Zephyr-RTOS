@@ -11,3 +11,7 @@ This is an electronic leadscrew inspired by espELS and Clough42. It aims to make
 - west init
 - run build.bat with one of the supported boards, eg build.bat rpi_pico
 
+# Running the Tests
+- install qemu, add bin dir to path
+- cd tests
+- west build -t run

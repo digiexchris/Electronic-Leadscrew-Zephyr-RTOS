@@ -38,7 +38,7 @@ public:
      * @return The average time between counts as a uint16_t value.
      * If the period is zero, the encoder has not moved since the last update.
      */
-    virtual uint16_t GetCountPeriod(Status status) final;
+    virtual uint16_t GetCountPeriod() final;
     
     /**
      * @brief Updates the encoder.
