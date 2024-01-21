@@ -1,6 +1,6 @@
 #include "main.hpp"
 #include <zephyr/kernel.h>
-#include "State/StateMachine.hpp"
+#include "State/State.hpp"
 
 #include "Encoder/IEncoder.hpp"
 

@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.13.1)
 set(BOARD qemu_cortex_m3 )
 find_package(zephyr)
 project(app)
-target_sources(app PRIVATE Encoder/test_encoder.cpp)
+target_sources(app PRIVATE Encoder/test_encoder.cpp State/test_state_machine.cpp)
 
 # Assuming your ETL library is at '../lib/etl'
 # Specify the binary directory for the external project
@@ -13,6 +13,6 @@ add_subdirectory(../lib/etl ${ETL_BINARY_DIR})
 target_link_libraries(app PUBLIC etl)
 
 # Add the code under test source files
-file(GLOB APP_SOURCES "../src/Encoder/*.cpp")
+file(GLOB APP_SOURCES "../src/Encoder/*.cpp" "../src/State/*.cpp")
 target_sources(app PRIVATE ${APP_SOURCES})
 target_include_directories(app PRIVATE ../include/)
