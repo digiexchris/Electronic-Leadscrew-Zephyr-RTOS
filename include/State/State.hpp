@@ -3,9 +3,7 @@
 #include "etl/queue.h"
 #include "etl/fsm.h"
 #include "etl/message_packet.h"
-
-#include <iostream>
-#include <string>
+#include <zephyr/sys/printk.h>
 
 enum MessageId {
     SET_TURN_MODE = 1,
@@ -67,12 +65,11 @@ public:
     {
       // Place in queue.
       queue.emplace(msg_);
-
-      std::cout << "Queueing message " << int(msg_.get_message_id()) << std::endl;
+      printk("Queueing message %d\n", msg_.get_message_id());
     }
     else
     {
-      std::cout << "Ignoring message " << int(msg_.get_message_id()) << std::endl;
+      printk("Message %d not accepted\n", msg_.get_message_id());
     }
   }
 
@@ -85,7 +82,7 @@ public:
     {
       message_packet& packet = queue.front();
       etl::imessage& msg = packet.get();
-      std::cout << "Processing message " << int(msg.get_message_id()) << std::endl;
+      printk("Processing message %d\n", msg.get_message_id());
 
       // Call the base class's receive function.
       // This will route it to the correct 'on_event' handler.
@@ -115,37 +112,34 @@ public:
   //***************************************************************************
   etl::fsm_state_id_t on_enter_state() override
   {
-    std::cout << "  S1 : Enter state TURN MODE" << std::endl;
+    printk("  S1 : Enter state TURN MODE\n");
     return StateId::TURN_MODE; //This returns different in an HFSM, see docs when you convert
   }
 
   //***************************************************************************
   void on_exit_state() override
   {
-    std::cout << "  S1 : Exit state TURN MODE" << std::endl;
+    printk("  S1 : Exit state TURN MODE\n");
   }
 
   //***************************************************************************
   etl::fsm_state_id_t on_event(const EStopMessage& msg)
   {
-    std::cout << "  S1 : Received message ESTOP" << std::endl;
-    std::cout.flush();
+    printk("  S1 : Received message ESTOP\n");
     return StateId::TURN_MODE; //this should transition to the sub-state ESTOP of all movement mode states.
   }
 
   //***************************************************************************
   etl::fsm_state_id_t on_event(const ResetMessage& msg)
   {
-    std::cout << "  S1 : Received message RESET" << std::endl;
-    std::cout.flush();
+    printk("  S1 : Received message RESET\n");
     return StateId::INIT;
   }
 
   //***************************************************************************
   etl::fsm_state_id_t on_event_unknown(const etl::imessage& msg)
   {
-    std::cout << "  S2 : Received unknown message " << int(msg.get_message_id()) << std::endl;
-    std::cout.flush();
+    printk("  S1 : Received unknown message %d\n", msg.get_message_id());
     return StateId::TURN_MODE;
   }
 };
@@ -160,7 +154,7 @@ public:
   //***************************************************************************
   etl::fsm_state_id_t on_enter_state() override
   {
-    std::cout << "  S2 : Enter state" << std::endl;
+    printk("  S2 : Enter state INIT\n" );
     return StateId::INIT; //Restore the last mode and set it here
   }
 
@@ -169,37 +163,34 @@ public:
   //***************************************************************************
   void on_exit_state() override
   {
-    std::cout << "  S2 : Exit state" << std::endl;
+    printk("  S2 : Exit state INIT\n");
   }
 
   //***************************************************************************
   etl::fsm_state_id_t on_event(const SetTurnModeMessage& msg)
   {
-    std::cout << "  S1 : Received message SETTURNMODE" << std::endl;
-    std::cout.flush();
+    printk("  S1 : Received message SETTURNMODE\n");
     return StateId::TURN_MODE;
   }
 
   //***************************************************************************
   etl::fsm_state_id_t on_event(const EStopMessage& msg)
   {
-    std::cout << "  S1 : Received message ESTOP" << std::endl;
-    std::cout.flush();
+    printk("  S1 : Received message ESTOP\n");
     return StateId::TURN_MODE;
   }
 
   //***************************************************************************
   etl::fsm_state_id_t on_event(const ResetMessage& msg)
   {
-    std::cout << "  S1 : Received message RESET" << std::endl;
-    std::cout.flush();
+    printk("  S1 : Received message RESET\n");
     return StateId::INIT; // uhh, maybe we don't need this message, but I need to play with the FSM
   }
 
   //***************************************************************************
   etl::fsm_state_id_t on_event_unknown(const etl::imessage& msg)
   {
-    std::cout << "  S2 : Received unknown message " << int(msg.get_message_id()) << std::endl;
+    printk("  S1 : Received unknown message %d\n", msg.get_message_id());
     return StateId::INIT;
   }
 };

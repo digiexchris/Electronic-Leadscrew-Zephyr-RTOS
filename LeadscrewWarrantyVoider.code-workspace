@@ -7,6 +7,10 @@
 	"settings": {
 		// Hush CMake
 		"cmake.configureOnOpen": true,
+		"cmake.configureSettings": {
+			"CMAKE_EXPORT_COMPILE_COMMANDS": "ON"
+		},
+		"cmake.configureOnEdit": false,
 
 		// IntelliSense
 		"C_Cpp.default.compilerPath": "${userHome}/zephyr-sdk-0.16.1/arm-zephyr-eabi/bin/arm-zephyr-eabi-gcc",
@@ -109,7 +113,7 @@
 			"gcc",
 			"gnuld",
 			"msvc",
-			"ghs",
+			"ghs",  
 			"diab",
 			"iar"
 		],
@@ -119,7 +123,64 @@
 		"version": "2.0.0",
 		"tasks": [
 			{
-				"label": "West Build",
+				"label": "Build Pico",
+				"type": "shell",
+				"group": {
+					"kind": "build",
+					"isDefault": true
+				},
+				"command": "west",
+				"args": [
+					"build",
+					"-p",
+					"auto",
+					"-b",
+					"rpi_pico"
+				],
+				"problemMatcher": [
+					"$gcc"
+				],
+			},
+			{
+				"label": "Build STM32",
+				"type": "shell",
+				"group": {
+					"kind": "build",
+					"isDefault": true
+				},
+				"command": "west",
+				"args": [
+					"build",
+					"-p",
+					"auto",
+					"-b",
+					"stm32f411ceu6-blackpill"
+				],
+				"problemMatcher": [
+					"$gcc"
+				],
+			},
+			{
+				"label": "Test",
+				"type": "shell",
+				"group": {
+					"kind": "test",
+					"isDefault": true
+				},
+				"command": "west",
+				"args": [
+					"twister",
+					"--platform",
+					"qemu_cortex_m3",
+					"-T",
+					"tests/"
+				],
+				"problemMatcher": [
+					"$gcc"
+				],
+			},
+			{
+				"label": "Clean",
 				"type": "shell",
 				"group": {
 					"kind": "build",

@@ -1,14 +1,13 @@
 cmake_minimum_required(VERSION 3.13.1)
 # set (BOARD_ROOT "${CMAKE_CURRENT_SOURCE_DIR}")
 # set (DTC_OVERLAY_FILE "${CMAKE_CURRENT_SOURCE_DIR}/ELS.ovelay")
-set(BOARD rpi_pico)
 set(NO_BUILD_TYPE_WARNING TRUE)
 find_package(zephyr)
 
 # include($ENV{ZEPHYR_BASE}/cmake/app/boilerplate.cmake NO_POLICY_SCOPE)
-project(LeadscrewWarrantyVoider)
+project(LeadscrewWarrantyVoider LANGUAGES C CXX ASM)
 
-FILE(GLOB app_sources src/*.c*)
+FILE(GLOB app_sources ./src/*.c* ./test/*.c*)
 include_directories(include)
 target_sources(app PRIVATE ${app_sources})
 add_subdirectory(lib/etl)

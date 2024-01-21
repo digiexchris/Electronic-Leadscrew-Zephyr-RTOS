@@ -2,9 +2,9 @@
 #include "../../include/State/State.hpp"
 #include <stdint.h>
 
-ZTEST_SUITE(state_machine_main_mode_transitions, NULL, NULL, NULL, NULL, NULL);
+ZTEST_SUITE(transition_to_turn, NULL, NULL, NULL, NULL, NULL);
 
-ZTEST_F(state_machine_main_mode_transitions, idle_to_turn_mode) {
+ZTEST_F(transition_to_turn, idle_to_turn_mode) {
 
     Machine fsm;
 

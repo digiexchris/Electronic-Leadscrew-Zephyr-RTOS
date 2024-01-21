@@ -5,3 +5,6 @@
 .vscode/ipch
 .west/
 build/
+twister*/
+.idea/
+cmake-build-debug/
