@@ -4,7 +4,7 @@
 
 class StateMachine : public etl::state_chart<StateMachine, MachineBaseState, StartState, InitCompleteState> {
 public:
-    StateMachine(); {
+    StateMachine() {
         // Define initial state
         set_initial_state<StartState>();
         // Define transitions

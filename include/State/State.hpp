@@ -1,24 +1,49 @@
-#include <etl/state_chart.h>
+#include <etl/hfsm.h>
 
-// Define events
-struct EventInitComplete {};
-struct EventChangeMode {};
-struct EventError {};
+// // The states.
+// Idle        idle;
+// Running     running;
+// WindingUp   windingUp;
+// WindingDown windingDown;
+// AtSpeed     atSpeed;
 
-// Define base state
-class MachineBaseState : public etl::state<MachineBaseState, EventInitComplete, EventChangeMode, EventError> {
-    // Common state functionality
+struct StateId
+{
+  enum
+  {
+    Started,
+    Turning,
+    StateCount
+  };
 };
 
-// Define specific states
-class StartState : public MachineBaseState {
-    // Default state on a cold boot
+struct EventId
+{
+  enum
+  {
+    Start,
+    Stop,
+    EStop,
+    Stopped,
+    Set_Speed,
+    Timeout
+  };
 };
 
-class InitCompleteState : public MachineBaseState {
-    // Settings loaded
+// These are all of the states for this HSFM.
+etl::ifsm_state* stateList[StateId::StateCount] =
+{
+  &idle, &running, &windingUp, &windingDown, &atSpeed
 };
 
-class ErrorState : public MachineBaseState {
-    // Fatal error, stop everything
-}
+// These states are child states of 'Running'.
+etl::ifsm_state* childStates[] =
+{
+  &windingUp, &atSpeed, &windingDown
+};
+
+MotorControl motorControl;
+
+running.set_child_states(childStates, etl::size(childStates));
+
+motorControl.Initialise(stateList, etl::size(stateList));
