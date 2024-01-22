@@ -169,12 +169,15 @@
 				},
 				"command": "west",
 				"args": [
-					"twister",
-					"--platform",
+					"build",
+					"-b",
 					"qemu_cortex_m3",
-					"-T",
-					"tests/"
+					"-t",
+					"run"
 				],
+				"options": {
+					"cwd": "${workspaceFolder}/test"
+				  },
 				"problemMatcher": [
 					"$gcc"
 				],

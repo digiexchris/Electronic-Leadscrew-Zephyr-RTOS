@@ -24,10 +24,8 @@ ZTEST_F(transition_to_turn, idle_to_turn_mode) {
     // De-queue them
     fsm.process_queue();
 
-    auto currentState = fsm.get_current_state_id();
+    etl::fsm_state_id_t currentState = fsm.get_state_id();
 
     zassert_equal(currentState, StateId::TURN_MODE, "State is not TURN_MODE");
-
-    return 0;
 
 }
