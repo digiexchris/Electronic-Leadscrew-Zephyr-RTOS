@@ -161,6 +161,27 @@
 				],
 			},
 			{
+				"label": "Build Test",
+				"type": "shell",
+				"group": {
+					"kind": "build",
+					"isDefault": true
+				},
+				"command": "west",
+				"args": [
+					"build",
+					"-b",
+					"qemu_cortex_m3",
+					"-DCONFIG_ZTEST=y",
+				],
+				"options": {
+					"cwd": "${workspaceFolder}/test"
+				  },
+				"problemMatcher": [
+					"$gcc"
+				],
+			},
+			{
 				"label": "Test",
 				"type": "shell",
 				"group": {
@@ -269,6 +290,7 @@
 	"launch": {
 		"version": "0.2.0",
 		"configurations": [
+
 			{
 				"name": "Launch",
 				"device": "rpi_pico",
