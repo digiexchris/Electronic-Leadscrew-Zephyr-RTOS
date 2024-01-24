@@ -11,7 +11,7 @@ enum MessageId {
     RESET
 };
 
-#define MACHINE_MODE_ROUTER_ID 1
+#define MACHINE_MODE_ROUTER_ID 0
 
 //*****************************************************************************
 // The messages.
@@ -38,7 +38,8 @@ enum StateId
 {
   INIT,
   TURN_MODE,
-  IDLE
+  IDLE,
+  NUMBER_OF_STATES
 };
 
 //*****************************************************************************

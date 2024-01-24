@@ -8,7 +8,13 @@ find_package(zephyr)
 # include($ENV{ZEPHYR_BASE}/cmake/app/boilerplate.cmake NO_POLICY_SCOPE)
 project(LeadscrewWarrantyVoider LANGUAGES C CXX ASM)
 
-FILE(GLOB app_sources ./src/*.c*)
+FILE(GLOB_RECURSE app_sources 
+#main app
+./src/*.c*
+#tests
+./test/*.c*
+./test/*.c*
+)
 include_directories(include)
 target_sources(app PRIVATE ${app_sources})
 add_subdirectory(lib/etl)

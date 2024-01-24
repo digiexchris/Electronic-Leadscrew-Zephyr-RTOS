@@ -172,37 +172,38 @@
 					"build",
 					"-b",
 					"qemu_cortex_m3",
+					"--",
 					"-DCONFIG_ZTEST=y",
 				],
 				"options": {
-					"cwd": "${workspaceFolder}/test"
+					"cwd": "${workspaceFolder}/"
 				  },
 				"problemMatcher": [
 					"$gcc"
 				],
 			},
-			{
-				"label": "Test",
-				"type": "shell",
-				"group": {
-					"kind": "test",
-					"isDefault": true
-				},
-				"command": "west",
-				"args": [
-					"build",
-					"-b",
-					"qemu_cortex_m3",
-					"-t",
-					"run"
-				],
-				"options": {
-					"cwd": "${workspaceFolder}/test"
-				  },
-				"problemMatcher": [
-					"$gcc"
-				],
-			},
+			// {
+			// 	"label": "Test",
+			// 	"type": "shell",
+			// 	"group": {
+			// 		"kind": "test",
+			// 		"isDefault": true
+			// 	},
+			// 	"command": "west",
+			// 	"args": [
+			// 		"build",
+			// 		"-b",
+			// 		"qemu_cortex_m3",
+			// 		"-t",
+			// 		"run"
+			// 	],
+			// 	"options": {
+			// 		"cwd": "${workspaceFolder}/"
+			// 	  },
+			// 	"problemMatcher": [
+			// 		"$gcc"
+			// 	],
+			// },
 			{
 				"label": "Clean",
 				"type": "shell",
@@ -213,10 +214,8 @@
 				"command": "west",
 				"args": [
 					"build",
-					"-p",
-					"auto",
-					"-b",
-					"rpi_pico"
+					"-t",
+					"pristine",
 				],
 				"problemMatcher": [
 					"$gcc"
@@ -313,6 +312,19 @@
 				"runToEntryPoint": "main",
 				"servertype": "openocd",
 				"gdbPath": "${userHome}/zephyr-sdk-0.16.1/arm-zephyr-eabi/bin/arm-zephyr-eabi-gdb"
+			},
+			{
+				"name": "Debug Test",
+				"device": "qemu-cortex-m3",
+				"cwd": "${workspaceFolder}/test",
+				"executable": "${workspaceFolder}/build/zephyr/zephyr.elf",
+				"request": "launch",
+				"cpu" : "cortex-m3",
+				"type": "cortex-debug",
+				"runToEntryPoint": "main",
+				"servertype": "qemu",
+				"gdbPath": "${env:ZEPHYR_SDK}/arm-zephyr-eabi-gdb.exe",
+				"preLaunchTask": "Build Test"
 			},
 		]
 	},

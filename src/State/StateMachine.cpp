@@ -55,7 +55,7 @@
   etl::fsm_state_id_t TurnModeState::on_enter_state()
   {
     printk("  S1 : Enter state TURN MODE\n");
-    return StateId::TURN_MODE; //This returns different in an HFSM, see docs when you convert
+    return No_State_Change; //This returns different in an HFSM, see docs when you convert
   }
 
   //***************************************************************************
@@ -68,7 +68,7 @@
   etl::fsm_state_id_t TurnModeState::on_event(const EStopMessage& msg)
   {
     printk("  S1 : Received message ESTOP\n");
-    return StateId::TURN_MODE; //this should transition to the sub-state ESTOP of all movement mode states.
+    return No_State_Change; //this should transition to the sub-state ESTOP of all movement mode states.
   }
 
   //***************************************************************************
@@ -82,14 +82,14 @@
   etl::fsm_state_id_t TurnModeState::on_event_unknown(const etl::imessage& msg)
   {
     printk("  S1 : Received unknown message %d\n", msg.get_message_id());
-    return StateId::TURN_MODE;
+    return No_State_Change;
   }
 
   //***************************************************************************
   etl::fsm_state_id_t InitState::on_enter_state()
   {
     printk("  S2 : Enter state INIT\n" );
-    return StateId::INIT; //Restore the last mode and set it here
+    return No_State_Change; //Restore the last mode and set it here
   }
 
   void InitState::on_exit_state()
@@ -108,19 +108,19 @@
   etl::fsm_state_id_t InitState::on_event(const EStopMessage& msg)
   {
     printk("  S1 : Received message ESTOP\n");
-    return StateId::TURN_MODE;
+    return No_State_Change;
   }
 
   //***************************************************************************
   etl::fsm_state_id_t InitState::on_event(const ResetMessage& msg)
   {
     printk("  S1 : Received message RESET\n");
-    return StateId::INIT; // uhh, maybe we don't need this message, but I need to play with the FSM
+    return No_State_Change; // uhh, maybe we don't need this message, but I need to play with the FSM
   }
 
   //***************************************************************************
   etl::fsm_state_id_t InitState::on_event_unknown(const etl::imessage& msg)
   {
     printk("  S1 : Received unknown message %d\n", msg.get_message_id());
-    return StateId::INIT;
+    return No_State_Change;
   }

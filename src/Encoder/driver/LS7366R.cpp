@@ -19,21 +19,21 @@ void LS7366R::Init() {
         return;
     }
 
-    spiCS.gpio_dev = device_get_binding("GPIO_0");
+    spiCS.gpio.port = device_get_binding("GPIO_0");
 
-    if (!spiCS.gpio_dev) {
+    if (!spiCS.gpio.port) {
         //todo throw a fatal error  printk("GPIO device not found\n");
         return;
     }
 
-    spiCS.gpio_pin = 4;
+    spiCS.gpio.pin = 4;
     spiCS.delay = 0;
-    spiCS.gpio_dt_flags = GPIO_ACTIVE_LOW;
+    spiCS.gpio.dt_flags = GPIO_ACTIVE_LOW;
 
     spiCFG.frequency = 1000000;
     spiCFG.operation = SPI_OP_MODE_MASTER | SPI_WORD_SET(8) | SPI_TRANSFER_MSB | SPI_MODE_CPOL | SPI_MODE_CPHA;
     spiCFG.slave = 0;
-    spiCFG.cs = &spiCS;
+    spiCFG.cs = spiCS;
     
     //Configure and reset the LS7366R
     // cppcheck-suppress knownConditionTrueFalse 
@@ -51,11 +51,11 @@ void LS7366R::Init() {
 }
 
 void LS7366R::StartCS() {
-    gpio_clear(GPIOA, GPIO4); // Set CS low
+    //handled automatically by zephyr gpio_clear(GPIOA, GPIO4); // Set CS low
 }
 
 void LS7366R::EndCS() {
-    gpio_set(GPIOA, GPIO4); // Set CS high
+    //hadled automatically by zephyrgpio_set(GPIOA, GPIO4); // Set CS high
 }
 
 void LS7366R::PrivWrite(uint8_t opCode, const uint8_t* data) {
@@ -92,7 +92,7 @@ void LS7366R::Update() {
     tx_bufs.buffers = &tx_buf;
     tx_bufs.count = 1;
 
-    spi_write(spi_dev, &spi_cfg, &tx_bufs);
+    spi_write(spiDev, &spiCFG, &tx_bufs);
 
     //it's more important that the current timestamp matches the current count for the position loop
     //so set it as soon as the LOAD_OTR is done
@@ -108,7 +108,7 @@ void LS7366R::Update() {
     rx_bufs.buffers = &rx_buf;
     rx_bufs.count = 1;
 
-    spi_transceive(spi_dev, &spi_cfg, &tx_bufs, &rx_bufs);
+    spi_transceive(spiDev, &spiCFG, &tx_bufs, &rx_bufs);
 
     // Convert buffer to uint32_t count
     uint32_t count = (buffer[0] << 24) | (buffer[1] << 16) | (buffer[2] << 8) | buffer[3];
@@ -120,7 +120,7 @@ void LS7366R::Update() {
     rx_buf.buf = &buffer[0];
     rx_buf.len = 1;
 
-    spi_transceive(spi_dev, &spi_cfg, &tx_bufs, &rx_bufs);
+    spi_transceive(spiDev, &spiCFG, &tx_bufs, &rx_bufs);
 
     uint8_t status = buffer[0];
 
