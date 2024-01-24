@@ -33,7 +33,7 @@ struct my_suite_fixture {
 
 // ZTEST_SUITE(encoder_test, NULL, encoder_test_setup, encoder_test_before, NULL, encoder_test_teardown);
 
-ZTEST_SUITE(encoder_get_counter_period, NULL, NULL, NULL, NULL, NULL);
+ZTEST_SUITE(get_counter_period, NULL, NULL, NULL, NULL, NULL);
 
 class MockEncoder : public Encoder {
      public:
@@ -57,7 +57,7 @@ struct Status {
     };
 */
 
-ZTEST_F(encoder_get_counter_period, spindle_stopped)
+ZTEST_F(get_counter_period, spindle_stopped)
 {
      MockEncoder encoder;
      encoder.SetStatus({0, false, 0, 0, 0, false, 0, 0});
@@ -68,7 +68,7 @@ ZTEST_F(encoder_get_counter_period, spindle_stopped)
      //zassert_equal(256, fixture->max_size);
 }
 
-ZTEST_F(encoder_get_counter_period, 100ms_per_count_over_10_counts)
+ZTEST_F(get_counter_period, 100ms_per_count_over_10_counts)
 {
      Encoder::Status status = {0, false, 1000, 0, 0, false, 0, 0};
      status.count = 10;

@@ -29,7 +29,7 @@ class LS7366R : public Encoder {
         void EndCS();
         State myState;
 
-        device *spiDev; //the SPI used for the encoder
+        const device *spiDev; //the SPI used for the encoder
         spi_cs_control spiCS;
         spi_config spiCFG;
 

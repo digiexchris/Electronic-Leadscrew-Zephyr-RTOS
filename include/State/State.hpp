@@ -1,49 +1,85 @@
-#include <etl/hfsm.h>
+#ifndef STATE_HPP
+#define STATE_HPP
+#include "etl/queue.h"
+#include "etl/fsm.h"
+#include "etl/message_packet.h"
+#include <zephyr/sys/printk.h>
 
-// // The states.
-// Idle        idle;
-// Running     running;
-// WindingUp   windingUp;
-// WindingDown windingDown;
-// AtSpeed     atSpeed;
-
-struct StateId
-{
-  enum
-  {
-    Started,
-    Turning,
-    StateCount
-  };
+enum MessageId {
+    SET_TURN_MODE = 1,
+    ESTOP,
+    RESET
 };
 
-struct EventId
+#define MACHINE_MODE_ROUTER_ID 0
+
+//*****************************************************************************
+// The messages.
+//*****************************************************************************
+struct SetTurnModeMessage : public etl::message<MessageId::SET_TURN_MODE>
 {
-  enum
-  {
-    Start,
-    Stop,
-    EStop,
-    Stopped,
-    Set_Speed,
-    Timeout
-  };
 };
 
-// These are all of the states for this HSFM.
-etl::ifsm_state* stateList[StateId::StateCount] =
+struct EStopMessage : public etl::message<MessageId::ESTOP>
 {
-  &idle, &running, &windingUp, &windingDown, &atSpeed
 };
 
-// These states are child states of 'Running'.
-etl::ifsm_state* childStates[] =
+struct ResetMessage : public etl::message<MessageId::RESET>
 {
-  &windingUp, &atSpeed, &windingDown
 };
 
-MotorControl motorControl;
+// struct SetLead : public etl::message<MessageId::SET_LEAD>
+// {
+//     SetLead(double lead) : lead(lead) {}
+//     double lead;
+// };
 
-running.set_child_states(childStates, etl::size(childStates));
+enum StateId
+{
+  INIT,
+  TURN_MODE,
+  IDLE,
+  NUMBER_OF_STATES
+};
 
-motorControl.Initialise(stateList, etl::size(stateList));
+//*****************************************************************************
+// The Finite State Machine.
+//*****************************************************************************
+class Machine : public etl::fsm
+{
+public:
+
+  Machine();
+  void receive(const etl::imessage& msg_) override;
+  void process_queue();
+
+private:
+
+  typedef etl::message_packet<SetTurnModeMessage, EStopMessage, ResetMessage> message_packet;
+  etl::queue<message_packet, 10> queue;
+};
+
+class TurnModeState : public etl::fsm_state<Machine, TurnModeState, StateId::TURN_MODE, EStopMessage, ResetMessage>
+{
+public:
+
+  etl::fsm_state_id_t on_enter_state() override;
+  void on_exit_state() override;
+  etl::fsm_state_id_t on_event(const EStopMessage& msg);
+  etl::fsm_state_id_t on_event(const ResetMessage& msg);
+  etl::fsm_state_id_t on_event_unknown(const etl::imessage& msg);
+};
+
+class InitState : public etl::fsm_state<Machine, InitState, StateId::INIT, EStopMessage, SetTurnModeMessage, ResetMessage>
+{
+public:
+
+  etl::fsm_state_id_t on_enter_state() override;
+  void on_exit_state() override;
+  etl::fsm_state_id_t on_event(const SetTurnModeMessage& msg);
+  etl::fsm_state_id_t on_event(const EStopMessage& msg);
+  etl::fsm_state_id_t on_event(const ResetMessage& msg);
+  etl::fsm_state_id_t on_event_unknown(const etl::imessage& msg);
+};
+
+#endif

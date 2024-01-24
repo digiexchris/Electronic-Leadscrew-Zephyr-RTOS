@@ -1,6 +1,9 @@
+
+#ifndef CONFIG_ZTEST
+
 #include "main.hpp"
 #include <zephyr/kernel.h>
-#include "State/StateMachine.hpp"
+#include "State/State.hpp"
 
 #include "Encoder/IEncoder.hpp"
 
@@ -9,6 +12,8 @@
 
 #ifdef CONFIG_SPINDLE_ENCODER_TYPE_TEST
     // Setup for TEST encoder
+    #define myEncoder nullptr
+
 #elif CONFIG_SPINDLE_ENCODER_TYPE_LS7366
     #include "Encoder/Driver/LS7366R.hpp"
     LS7366R* myEncoder;
@@ -54,3 +59,5 @@ void UpdateEncoderTask(void *arg1, void *arg2, void *arg3) {
         //vTaskDelay(1*portTICK_PERIOD_MS);
     }
 }
+
+#endif // TESTING

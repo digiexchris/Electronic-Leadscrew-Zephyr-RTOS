@@ -7,19 +7,113 @@
 	"settings": {
 		// Hush CMake
 		"cmake.configureOnOpen": true,
+		"cmake.configureSettings": {
+			"CMAKE_EXPORT_COMPILE_COMMANDS": "ON"
+		},
+		"cmake.configureOnEdit": false,
 
 		// IntelliSense
 		"C_Cpp.default.compilerPath": "${userHome}/zephyr-sdk-0.16.1/arm-zephyr-eabi/bin/arm-zephyr-eabi-gcc",
 		"C_Cpp.default.compileCommands": "${workspaceFolder}/build/compile_commands.json",
 
 		// File Associations
-		"files.associations": {},
+		"files.associations": {
+			"algorithm": "cpp",
+			"array": "cpp",
+			"atomic": "cpp",
+			"bit": "cpp",
+			"bitset": "cpp",
+			"cctype": "cpp",
+			"charconv": "cpp",
+			"chrono": "cpp",
+			"clocale": "cpp",
+			"cmath": "cpp",
+			"compare": "cpp",
+			"concepts": "cpp",
+			"condition_variable": "cpp",
+			"csetjmp": "cpp",
+			"cstdarg": "cpp",
+			"cstddef": "cpp",
+			"cstdint": "cpp",
+			"cstdio": "cpp",
+			"cstdlib": "cpp",
+			"cstring": "cpp",
+			"ctime": "cpp",
+			"cwchar": "cpp",
+			"cwctype": "cpp",
+			"deque": "cpp",
+			"exception": "cpp",
+			"format": "cpp",
+			"forward_list": "cpp",
+			"fstream": "cpp",
+			"functional": "cpp",
+			"initializer_list": "cpp",
+			"iomanip": "cpp",
+			"ios": "cpp",
+			"iosfwd": "cpp",
+			"iostream": "cpp",
+			"istream": "cpp",
+			"iterator": "cpp",
+			"limits": "cpp",
+			"list": "cpp",
+			"locale": "cpp",
+			"map": "cpp",
+			"memory": "cpp",
+			"mutex": "cpp",
+			"new": "cpp",
+			"numbers": "cpp",
+			"numeric": "cpp",
+			"optional": "cpp",
+			"ostream": "cpp",
+			"queue": "cpp",
+			"random": "cpp",
+			"ranges": "cpp",
+			"ratio": "cpp",
+			"semaphore": "cpp",
+			"set": "cpp",
+			"span": "cpp",
+			"sstream": "cpp",
+			"stack": "cpp",
+			"stdexcept": "cpp",
+			"stop_token": "cpp",
+			"streambuf": "cpp",
+			"string": "cpp",
+			"system_error": "cpp",
+			"thread": "cpp",
+			"tuple": "cpp",
+			"type_traits": "cpp",
+			"typeinfo": "cpp",
+			"unordered_map": "cpp",
+			"unordered_set": "cpp",
+			"utility": "cpp",
+			"variant": "cpp",
+			"vector": "cpp",
+			"xfacet": "cpp",
+			"xhash": "cpp",
+			"xiosbase": "cpp",
+			"xlocale": "cpp",
+			"xlocbuf": "cpp",
+			"xlocinfo": "cpp",
+			"xlocmes": "cpp",
+			"xlocmon": "cpp",
+			"xlocnum": "cpp",
+			"xloctime": "cpp",
+			"xmemory": "cpp",
+			"xstring": "cpp",
+			"xtr1common": "cpp",
+			"xtree": "cpp",
+			"xutility": "cpp",
+			"*.tcc": "cpp",
+			"memory_resource": "cpp",
+			"string_view": "cpp",
+			"cinttypes": "cpp"
+		},
 		"cmake.enabledOutputParsers": [
 			"cmake",
 			"gcc",
 			"gnuld",
 			"msvc",
-			"ghs",
+			"ghs",  
 			"diab",
 			"iar"
 		],
@@ -29,7 +123,7 @@
 		"version": "2.0.0",
 		"tasks": [
 			{
-				"label": "West Build",
+				"label": "Build Pico",
 				"type": "shell",
 				"group": {
 					"kind": "build",
@@ -42,6 +136,86 @@
 					"auto",
 					"-b",
 					"rpi_pico"
+				],
+				"problemMatcher": [
+					"$gcc"
+				],
+			},
+			{
+				"label": "Build STM32",
+				"type": "shell",
+				"group": {
+					"kind": "build",
+					"isDefault": true
+				},
+				"command": "west",
+				"args": [
+					"build",
+					"-p",
+					"auto",
+					"-b",
+					"stm32f411ceu6-blackpill"
+				],
+				"problemMatcher": [
+					"$gcc"
+				],
+			},
+			{
+				"label": "Build Test",
+				"type": "shell",
+				"group": {
+					"kind": "build",
+					"isDefault": true
+				},
+				"command": "west",
+				"args": [
+					"build",
+					"-b",
+					"qemu_cortex_m3",
+					"--",
+					"-DCONFIG_ZTEST=y",
+				],
+				"options": {
+					"cwd": "${workspaceFolder}/"
+				  },
+				"problemMatcher": [
+					"$gcc"
+				],
+			},
+			// {
+			// 	"label": "Test",
+			// 	"type": "shell",
+			// 	"group": {
+			// 		"kind": "test",
+			// 		"isDefault": true
+			// 	},
+			// 	"command": "west",
+			// 	"args": [
+			// 		"build",
+			// 		"-b",
+			// 		"qemu_cortex_m3",
+			// 		"-t",
+			// 		"run"
+			// 	],
+			// 	"options": {
+			// 		"cwd": "${workspaceFolder}/"
+			// 	  },
+			// 	"problemMatcher": [
+			// 		"$gcc"
+			// 	],
+			// },
+			{
+				"label": "Clean",
+				"type": "shell",
+				"group": {
+					"kind": "build",
+					"isDefault": true
+				},
+				"command": "west",
+				"args": [
+					"build",
+					"-t",
+					"pristine",
 				],
 				"problemMatcher": [
 					"$gcc"
@@ -115,6 +289,7 @@
 	"launch": {
 		"version": "0.2.0",
 		"configurations": [
+
 			{
 				"name": "Launch",
 				"device": "rpi_pico",
@@ -137,6 +312,19 @@
 				"runToEntryPoint": "main",
 				"servertype": "openocd",
 				"gdbPath": "${userHome}/zephyr-sdk-0.16.1/arm-zephyr-eabi/bin/arm-zephyr-eabi-gdb"
+			},
+			{
+				"name": "Debug Test",
+				"device": "qemu-cortex-m3",
+				"cwd": "${workspaceFolder}/test",
+				"executable": "${workspaceFolder}/build/zephyr/zephyr.elf",
+				"request": "launch",
+				"cpu" : "cortex-m3",
+				"type": "cortex-debug",
+				"runToEntryPoint": "main",
+				"servertype": "qemu",
+				"gdbPath": "${env:ZEPHYR_SDK}/arm-zephyr-eabi-gdb.exe",
+				"preLaunchTask": "Build Test"
 			},
 		]
 	},

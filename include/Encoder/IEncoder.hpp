@@ -1,4 +1,6 @@
 #pragma once
+#ifndef IENCODER_HPP
+#define IENCODER_HPP
 #include <stdint.h>
 #include <etl/atomic.h>
 /**
@@ -51,3 +53,5 @@ protected:
     etl::atomic<Status> myStatus;   ///< The current and previous position, speed and direction of the encoder.
     
 };
+
+#endif // IENCODER_HPP
