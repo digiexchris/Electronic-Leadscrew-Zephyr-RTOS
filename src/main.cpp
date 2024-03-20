@@ -14,11 +14,15 @@
     // Setup for TEST encoder
     #define myEncoder nullptr
 
-#elif CONFIG_SPINDLE_ENCODER_TYPE_LS7366
-    #include "Encoder/Driver/LS7366R.hpp"
+#elif CONFIG_SPINDLE_ENCODER_TYPE_LS7366 //Deprecated, this chip is obseleted by the manufacturer
+    #include "Device/Encoder/Driver/LS7366R.hpp"
     LS7366R* myEncoder;
     // Setup for LS7366 encoder
 #elif CONFIG_SPINDLE_ENCODER_TYPE_SDEC
+
+#elif CONFIG_SPINDLE_ENCODER_TYPE_VIRTUAL
+
+#elif CONFIG_SPINDLE_ENCODER_TYPE_STM32_QEI
 
 #else
     #error "No encoder type selected, see Kconfig"

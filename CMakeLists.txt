@@ -15,7 +15,21 @@ FILE(GLOB_RECURSE app_sources
 ./test/*.c*
 ./test/*.c*
 )
-include_directories(include)
+
+zephyr_include_directories(
+ ${QPCPP}/include
+ ${QPCPP}/zephyr
+ ./src
+)
+
+# option to turn QSPY software tracing ON or OFF
+# NOTE: Typically specified on command-line, e.g.:
+# west build -b <board> -- -DQSPY=ON
+#
+option(QSPY "QSPY software tracing" OFF)
+
+include_directories(src)
 target_sources(app PRIVATE ${app_sources})
 add_subdirectory(lib/etl)
 target_link_libraries(app PUBLIC etl)
+
