@@ -1,5 +1,5 @@
 #pragma once
-#include "State/Position.hpp"
+#include "Device/State/Position.hpp"
 #include <cstdint>
 
 namespace Device

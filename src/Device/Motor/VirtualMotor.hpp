@@ -1,6 +1,6 @@
 #pragma once
 #include "IMotor.hpp"
-#include "State/Position.hpp"
+#include "Device/State/Position.hpp"
 
 namespace Device
 {

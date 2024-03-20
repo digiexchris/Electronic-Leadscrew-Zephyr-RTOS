@@ -4,7 +4,7 @@
 
 /**
 */
-namespace State
+namespace Device::State
 {
 
 struct PositionParams

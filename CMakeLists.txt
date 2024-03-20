@@ -2,11 +2,17 @@ cmake_minimum_required(VERSION 3.13.1)
 # set (BOARD_ROOT "${CMAKE_CURRENT_SOURCE_DIR}")
 # set (DTC_OVERLAY_FILE "${CMAKE_CURRENT_SOURCE_DIR}/ELS.ovelay")
 set(NO_BUILD_TYPE_WARNING TRUE)
-set(BOARD rpi_pico)
-find_package(zephyr)
+set(BOARD native_sim)
+set(QPCPP ${CMAKE_CURRENT_SOURCE_DIR}/qpcpp)
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
-# include($ENV{ZEPHYR_BASE}/cmake/app/boilerplate.cmake NO_POLICY_SCOPE)
-project(LeadscrewWarrantyVoider LANGUAGES C CXX ASM)
+# Zephyr stuff
+set(ZEPHYR_EXTRA_MODULES ${QPCPP})
+
+find_package(Zephyr REQUIRED HINTS $ENV{ZEPHYR_BASE})
+
+#include($ENV{ZEPHYR_BASE}/cmake/app/boilerplate.cmake NO_POLICY_SCOPE)
+project(app LANGUAGES C CXX ASM)
 
 FILE(GLOB_RECURSE app_sources 
 #main app
@@ -30,6 +36,5 @@ option(QSPY "QSPY software tracing" OFF)
 
 include_directories(src)
 target_sources(app PRIVATE ${app_sources})
-add_subdirectory(lib/etl)
-target_link_libraries(app PUBLIC etl)
+
 

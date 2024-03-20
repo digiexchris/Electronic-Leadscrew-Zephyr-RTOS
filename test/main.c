@@ -2,11 +2,11 @@
 #include <stdint.h> // Include the necessary header file
 static inline void _exit_qemu() {
 
-register uint32_t r0 __asm__("r0"); // Use 'uint32_t' instead of 'u32_t'
-  r0 = 0x18;
-  register uint32_t r1 __asm__("r1");
-  r1 = 0x20026;
-  __asm__ volatile("bkpt #0xAB");
+// register uint32_t r0 __asm__("r0"); // Use 'uint32_t' instead of 'u32_t'
+  // r0 = 0x18;
+  // register uint32_t r1 __asm__("r1");
+  // r1 = 0x20026;
+  // __asm__ volatile("bkpt #0xAB");
 }
 
 #ifdef CONFIG_ZTEST_SHUFFLE

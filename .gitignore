@@ -11,3 +11,4 @@ cmake-build-debug/
 qemu.pid
 qpcpp/
 qpcpp-zephyr-app-main/
+zephyr/

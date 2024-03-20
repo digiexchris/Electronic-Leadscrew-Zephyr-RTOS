@@ -13,7 +13,8 @@
 		"cmake.configureOnEdit": false,
 
 		// IntelliSense
-		"C_Cpp.default.compilerPath": "${userHome}/zephyr-sdk-0.16.1/arm-zephyr-eabi/bin/arm-zephyr-eabi-gcc",
+		//"C_Cpp.default.compilerPath": "/opt/toolchains/zephyr-sdk-0.16.5/arm-zephyr-eabi/bin/arm-zephyr-eabi-gcc",
+		"C_Cpp.default.compilerPath": "/opt/toolchains/zephyr-sdk-0.16.5/x86_64-zephyr-elf",
 		"C_Cpp.default.compileCommands": "${workspaceFolder}/build/compile_commands.json",
 
 		// File Associations
@@ -118,7 +119,22 @@
 			"diab",
 			"iar"
 		],
-		"cmake.options.statusBarVisibility": "visible"
+		"cmake.options.statusBarVisibility": "visible",
+		"C_Cpp.default.cppStandard": "c++20",
+		"C_Cpp.default.cStandard": "c17",
+		"C_Cpp.default.intelliSenseMode": "linux-gcc-x64",
+		"C_Cpp.default.mergeConfigurations": true,
+		"C_Cpp.exclusionPolicy": "checkFolders",
+		"C_Cpp.inlayHints.autoDeclarationTypes.enabled": true,
+		"C_Cpp.inlayHints.autoDeclarationTypes.showOnLeft": true,
+		"C_Cpp.inlayHints.parameterNames.enabled": true,
+		"C_Cpp.inlayHints.referenceOperator.enabled": true,
+		"C_Cpp.intelliSenseEngineFallback": "enabled",
+		"C_Cpp.workspaceSymbols": "All",
+		"C_Cpp.clang_format_sortIncludes": true,
+		"C_Cpp.clang_format_style": "file:./clang-format",
+		"C_Cpp.formatting": "clangFormat",
+		"C_Cpp.vcFormat.indent.braces": true
 	},
 	"tasks": {
 		"version": "2.0.0",
@@ -127,8 +143,7 @@
 				"label": "Build Pico",
 				"type": "shell",
 				"group": {
-					"kind": "build",
-					"isDefault": true
+					"kind": "build"
 				},
 				"command": "west",
 				"args": [
@@ -140,14 +155,13 @@
 				],
 				"problemMatcher": [
 					"$gcc"
-				],
+				]
 			},
 			{
 				"label": "Build STM32",
 				"type": "shell",
 				"group": {
-					"kind": "build",
-					"isDefault": true
+					"kind": "build"
 				},
 				"command": "west",
 				"args": [
@@ -159,7 +173,7 @@
 				],
 				"problemMatcher": [
 					"$gcc"
-				],
+				]
 			},
 			{
 				"label": "Build Test",
@@ -172,51 +186,47 @@
 				"args": [
 					"build",
 					"-b",
-					"qemu_cortex_m3",
+					"native_sim",
 					"--",
 					"-DCONFIG_ZTEST=y",
+					"-DCONFIG_COVERAGE=y",
+					"-DCONFIG_COVERAGE_DUMP=y"
 				],
 				"options": {
 					"cwd": "${workspaceFolder}/"
-				  },
+				},
 				"problemMatcher": [
 					"$gcc"
-				],
+				]
 			},
 			{
 				"label": "Test",
 				"type": "shell",
 				"group": {
 					"kind": "test",
-					"isDefault": true
 				},
-				"command": "qemu-system-arm.exe",
-				"args": [
-					"-cpu",
-					"cortex-m3",
-					"-machine",
-					"lm3s6965evb",
-					"-nographic",
-					"-vga",
-					"none",
-					"-net",
-					"none",
-					"-pidfile",
-					"qemu.pid",
-					"-serial",
-					"mon:stdio",
-					"-semihosting",
-					"-kernel",
-					"build/zephyr/zephyr.elf"
-					// "build",
-					// "-b",
-					// "qemu_cortex_m3",
-					// "-t",
-					// "run"
-				],
+				"command": "build/zephyr/zephyr.exe",
+				// "args": [
+				// 	"-cpu",
+				// 	"cortex-m3",
+				// 	"-machine",
+				// 	"lm3s6965evb",
+				// 	"-nographic",
+				// 	"-vga",
+				// 	"none",
+				// 	"-net",
+				// 	"none",
+				// 	"-pidfile",
+				// 	"qemu.pid",
+				// 	"-serial",
+				// 	"mon:stdio",
+				// 	"-semihosting",
+				// 	"-kernel",
+				// 	"build/zephyr/zephyr.elf"
+				// ],
 				"options": {
 					"cwd": "${workspaceFolder}/"
-				  },
+				},
 				"problemMatcher": [
 					"$gcc"
 				],
@@ -227,19 +237,14 @@
 			{
 				"label": "Clean",
 				"type": "shell",
-				"group": {
-					"kind": "build",
-					"isDefault": true
-				},
+				"group": "build",
 				"command": "west",
 				"args": [
 					"build",
 					"-t",
-					"pristine",
+					"pristine"
 				],
-				"problemMatcher": [
-					"$gcc"
-				],
+				"problemMatcher": []
 			},
 			{
 				"label": "West Configurable Build",
@@ -255,9 +260,7 @@
 					"-b",
 					"${input:board}"
 				],
-				"problemMatcher": [
-					"$gcc"
-				]
+				"problemMatcher": []
 			},
 			{
 				"label": "West Flash",
@@ -278,7 +281,7 @@
 					"build",
 					"-t",
 					"guiconfig"
-				],
+				]
 			}
 		],
 		"inputs": [
@@ -367,7 +370,12 @@
 			"ms-vscode.vscode-embedded-tools",
 			"ms-vscode.vscode-serial-monitor",
 			"marus25.cortex-debug",
-			"donjayamanne.python-environment-manager"
+			"donjayamanne.python-environment-manager",
+			"github.copilot",
+			"github.copilot-chat",
+			"ms-vscode.cmake-tools",
+			"josetr.cmake-language-support-vscode",
+			"ms-vscode.cpptools"
 		]
 	}
 }

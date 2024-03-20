@@ -1,0 +1,6 @@
+CONFIG_GPIO_EMUL=y
+CONFIG_ZTEST=y
+CONFIG_NO_OPTIMIZATIONS=y
+CONFIG_PICOLIBC=y
+CONFIG_HAS_COVERAGE_SUPPORT=y
+#CONFIG_ASAN=y //todo setup a task to build this instead. Do CONFIG_UBSAN too https://clang.llvm.org/docs/UndefinedBehaviorSanitizer.html

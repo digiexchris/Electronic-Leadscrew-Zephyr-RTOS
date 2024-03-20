@@ -1,9 +1,6 @@
 
 #ifndef CONFIG_ZTEST
-
-#include "main.hpp"
 #include <zephyr/kernel.h>
-#include "State/State.hpp"
 
 #include "Encoder/IEncoder.hpp"
 

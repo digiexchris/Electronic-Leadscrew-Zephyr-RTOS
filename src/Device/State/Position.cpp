@@ -1,7 +1,7 @@
 #include "Position.hpp"
 #include <cmath>
 
-namespace State
+namespace Device::State
 {
 
 Position::Position(float myScaleFactor) : myScaleFactor(myScaleFactor) {}

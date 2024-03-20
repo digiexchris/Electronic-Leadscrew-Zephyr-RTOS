@@ -1,8 +1,8 @@
 #pragma once
 
-#include "State/Position.hpp"
+#include "Device/State/Position.hpp"
 
-namespace Device
+namespace Device::Encoder
 {
 
 class IEncoder : public State::Position

@@ -1,11 +1,12 @@
 #include "VirtualEncoder.hpp"
-#include "State/Position.hpp"
+#include "Device/State/Position.hpp"
+#include "Device/Encoder/IEncoder.hpp"
 
-namespace Device
+namespace Device::Encoder
 {
-    using State::PositionParams;
+    using Device::State::PositionParams;
 
-    VirtualEncoder::VirtualEncoder(float aNormalizedScaleFactor) : IEncoder(aNormalizedScaleFactor)
+    VirtualEncoder::VirtualEncoder(float aNormalizedScaleFactor) : Device::Encoder::IEncoder(aNormalizedScaleFactor)
     {
     }
 

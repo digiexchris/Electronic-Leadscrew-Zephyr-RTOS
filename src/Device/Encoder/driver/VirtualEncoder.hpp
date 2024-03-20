@@ -1,8 +1,8 @@
 #pragma once
-#include "State/Position.hpp"
-#include "IEncoder.hpp"
+#include "Device/State/Position.hpp"
+#include "../IEncoder.hpp"
 
-namespace Device
+namespace Device::Encoder
 {
 using State::PositionParams;
 

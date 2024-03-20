@@ -1,13 +1,13 @@
 {
   "dockerFile": "Dockerfile",
-	"build": {
-		"args": {
-			"WORKSPACE": "${containerWorkspaceFolder}"
-		}
-	},
-	"remoteUser": "dev",
+	// "build": {
+	// 	"args": {
+	// 		"WORKSPACE": "${containerWorkspaceFolder}"
+	// 	}
+	// },
+	"remoteUser": "user",
 
-	"containerEnv": { "ZEPHYR_BASE": "${containerWorkspaceFolder}/zephyr" },
+	//"containerEnv": { "ZEPHYR_BASE": "${containerWorkspaceFolder}/zephyr" },
   "capAdd": [ "SYS_PTRACE" ],
   "customizations": {
     "vscode": {
@@ -15,7 +15,7 @@
         "terminal.integrated.profiles.linux": {
           "bash": {
             "path": "bash"
-          },
+          }
         },
         "terminal.integrated.defaultProfile.linux": "bash"
       },
@@ -41,7 +41,9 @@
         "spmeesseman.vscode-taskexplorer",
         "markis.code-coverage",
         "EditorConfig.EditorConfig",
-        "bierner.markdown-mermaid"
+        "bierner.markdown-mermaid",
+        "seaube.clangformat",
+        "msekoranja.clang-format-checker"
       ]
     }
   },
@@ -50,11 +52,12 @@
       "version": "latest",
       "ppa": "false"
     },
-    "ghcr.io/devcontainers/features/sshd:1": {}
+    "ghcr.io/devcontainers/features/sshd:1": {},
+    "ghcr.io/devcontainers/features/dotnet:2": {} //for some c++ extensions
   },
   "postAttachCommand": "sudo service ssh start",
   "forwardPorts": [ "2222:22" ],
   "securityOpt": [ "seccomp=unconfined" ],
-  //"workspaceFolder": "${containerWorkspaceFolder}",
-  "workspaceMount": "source=${localWorkspaceFolder},target=${containerWorkspaceFolder},type=bind"
+  // "workspaceFolder": "/workdir/els",
+  "workspaceMount": "source=${localWorkspaceFolder},target=/workspaces/Electronic-Leadscrew-Zephyr-RTOS,type=bind"
 }
