@@ -9,9 +9,9 @@ if(CONFIG_ZTEST)
     find_package(zephyr)
 
     # include($ENV{ZEPHYR_BASE}/cmake/app/boilerplate.cmake NO_POLICY_SCOPE)
-    project(app LANGUAGES C CXX ASM)
+    # project(app LANGUAGES C CXX ASM)
 
-    FILE(GLOB app_sources ../src/Encoder/*.c* ../src/State/*.c* ./*/*.c*)
-    include_directories(../include)
+    FILE(GLOB app_sources ./*/*.c*)
+    include_directories(../src ./)
     target_sources(app PRIVATE ${app_sources})
 endif()

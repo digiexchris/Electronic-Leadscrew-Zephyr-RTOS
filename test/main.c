@@ -1,4 +1,5 @@
 #include <zephyr/ztest.h>
+#include <Mocks/trompeloeil.hpp>
 #include <stdint.h> // Include the necessary header file
 static inline void _exit_qemu() {
 
@@ -19,6 +20,27 @@ static inline void _exit_qemu() {
 
 void test_main(void)
 {
+
+  trompeloeil::set_reporter([](
+    trompeloeil::severity s,
+    const char* file,
+    unsigned long line,
+    std::string const& msg)
+  {
+    std::ostringstream os;
+    if (line) os << file << ':' << line << '\n';
+    os << msg;
+    auto failure = os.str();
+    if (s == trompeloeil::severity::fatal)
+    {
+      zassert(false, failure);
+    }
+    else
+    {
+      //CAPTURE(failure);
+      zassert_true(failure.empty());
+    }
+  });
 #if CONFIG_ZTEST_SHUFFLE
 	ztest_run_all(NULL, true, NUM_ITER_PER_SUITE, NUM_ITER_PER_TEST);
 #else
