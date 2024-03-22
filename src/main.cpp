@@ -1,5 +1,6 @@
 
-#ifndef CONFIG_ZTEST
+#ifndef ELS_TESTS
+
 #include <zephyr/kernel.h>
 
 #include "Encoder/IEncoder.hpp"

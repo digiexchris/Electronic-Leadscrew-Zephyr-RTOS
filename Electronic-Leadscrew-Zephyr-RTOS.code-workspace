@@ -129,7 +129,7 @@
 		"C_Cpp.inlayHints.autoDeclarationTypes.showOnLeft": true,
 		"C_Cpp.inlayHints.parameterNames.enabled": true,
 		"C_Cpp.inlayHints.referenceOperator.enabled": true,
-		"C_Cpp.intelliSenseEngineFallback": "enabled",
+		"C_Cpp.intelliSenseEngineFallback": "disabled",
 		"C_Cpp.workspaceSymbols": "All",
 		"C_Cpp.clang_format_sortIncludes": true,
 		"C_Cpp.clang_format_style": "file:./clang-format",
@@ -188,10 +188,10 @@
 					"-b",
 					"native_sim",
 					"--",
-					"-DCONFIG_ZTEST=y",
+					"-DELS_TESTS=y",
 					"-DCONFIG_COVERAGE=y",
 					"-DCONFIG_COVERAGE_DUMP=y",
-					"-DCOVERAGE_GCOV=y"
+					// "-DCOVERAGE_GCOV=y"
 				],
 				"options": {
 					"cwd": "${workspaceFolder}/"
@@ -206,7 +206,7 @@
 				"group": {
 					"kind": "test",
 				},
-				"command": "build/zephyr/zephyr.exe",
+				"command": "build/tests",
 				// "args": [
 				// 	"-cpu",
 				// 	"cortex-m3",

@@ -3,7 +3,9 @@
 // #include "Logging/Logger.hpp"
 // #include "TestHelpers/Logging/TestLogBackend.hpp"
 
-struct DefaultUnitTest
+#include <gtest/gtest.h>
+
+struct DefaultUnitTest : public ::testing::Test
 {
 public:
     // TestLogBackend* testLogBackend;

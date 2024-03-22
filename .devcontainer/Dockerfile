@@ -39,10 +39,12 @@ RUN wget ${WGET_ARGS} https://apt.llvm.org/llvm.sh && \
     chmod +x llvm.sh && \
     ./llvm.sh ${LLVM_VERSION} && \
     rm llvm.sh && \
-    apt-get install --no-install-recommends -y clang-format-${LLVM_VERSION} && \
+    apt-get install --no-install-recommends -y clangd clang-format-${LLVM_VERSION} && \
     apt-get clean && \
 	apt-get autoremove --purge
 
+# RUN update-alternatives --install /usr/bin/clang-format clang-format /usr/bin/clang-format-${LLVM_VERSION} 100
+# RUN update-alternatives --install /usr/bin/clangd clangd /usr/bin/clangd-${LLVM_VERSION} 100
 
 ## get run-clang-format
 RUN wget https://raw.githubusercontent.com/Sarcasm/run-clang-format/master/run-clang-format.py -O /usr/local/bin/run-clang-format.py && \

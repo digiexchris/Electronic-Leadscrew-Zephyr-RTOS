@@ -2,3 +2,6 @@ tests:
   VirtualEncoder.UpdatesWithIncrement:
     tags: device encoder
     harness: ztest
+  PositionFunctionsTest.Update:
+    tags: device position
+    harness: ztest
